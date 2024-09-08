@@ -23,8 +23,11 @@ import Viewer from '../components/viewer/viewer';
  */
 const Home: NextPage = () => {
   const { isMobile } = useResponsiveContext();
-  const [searchTerm, setSearchTerm] = useState('');
-  const { isLoading, data } = useRepoData(searchTerm);
+  const [searchTerm, setSearchTerm] = useState({ term: '', lang: '' });
+  const { isLoading, isError, data } = useRepoData(
+    searchTerm.term,
+    searchTerm.lang
+  );
 
   /**
    * @summary This function conditionally renders the loader, error or viewer components.
@@ -42,8 +45,16 @@ const Home: NextPage = () => {
       return <Box> Loading! </Box>;
     }
 
-    if (!data?.success || !data?.data) {
-      return <Box>Error!</Box>;
+    if (!data) {
+      return <Box>{}</Box>;
+    }
+
+    if (!data.success || !data.data) {
+      return <Box>Error</Box>;
+    }
+
+    if (isError) {
+      return <Box>{isError}</Box>;
     }
 
     const { data: response } = data;
@@ -61,16 +72,12 @@ const Home: NextPage = () => {
       <PageHead title="First Issues" />
       <Navbar />
       <Box flex pad="large" margin="large">
-        <SearchForm updateSearchTerm={(term) => setSearchTerm(term)} />
+        <SearchForm
+          updateSearchTerm={(term, lang) => setSearchTerm({ term, lang })}
+        />
       </Box>
-      <Box flex>
-        {
-          searchTerm && renderViewer()
-        }
-      </Box>
-      {
-        isMobile && <MobileNavbar />
-      }
+      <Box flex>{searchTerm && renderViewer()}</Box>
+      {isMobile && <MobileNavbar />}
     </>
   );
 };

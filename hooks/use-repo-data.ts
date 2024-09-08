@@ -2,9 +2,9 @@ import useSWR from 'swr';
 import { RepositorySearchResponse } from '../types/repository-search';
 
 type RepoData = {
-  data: RepositorySearchResponse;
-  isLoading: boolean;
-  isError: string;
+  data: RepositorySearchResponse | null;
+  isLoading: boolean | null;
+  isError: string | null;
 };
 
 /**
@@ -23,7 +23,8 @@ type RepoData = {
 const fetcher = async (...args: string[]) => {
   const url = args[0];
   const repo = args[1];
-  const body = JSON.stringify({ repo });
+  const lang = args[2];
+  const body = JSON.stringify({ repo, lang });
   const res = await fetch(url, { method: 'POST', body });
   return res.json();
 };
@@ -40,10 +41,17 @@ const fetcher = async (...args: string[]) => {
  * useSWR.
  *
  * @param {string} repo the text to search for.
+ * @param {string} lang the programming language to filter repositories.
  * @returns {RepoData} a wrapper around the API response with utility fields.
  */
-const useRepoData = (repo: string): RepoData => {
-  const { data, error } = useSWR(['/api/search/', repo], repo ? fetcher : null);
+const useRepoData = (repo: string, lang: string): RepoData => {
+  const { data, error } = useSWR(
+    ['/api/search/', repo, lang],
+    repo ? fetcher : null
+  );
+
+  if (!repo) return { data: null, isLoading: null, isError: null };
+
   return {
     data,
     isLoading: !error && !data,

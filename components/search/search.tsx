@@ -2,12 +2,13 @@ import { Box, Button, TextInput } from 'grommet';
 import { Search } from 'grommet-icons';
 import { KeyboardEventHandler, useState } from 'react';
 import useResponsiveContext from '../../hooks/use-responsive-context';
+import Select from '../select/select';
 
 type Props = {
   /**
    * This is a function that is called when the search is triggered.
    */
-  updateSearchTerm: (term: string) => void;
+  updateSearchTerm: (term: string, lang: string) => void;
 };
 
 /**
@@ -24,6 +25,7 @@ type Props = {
 const SearchForm = ({ updateSearchTerm }: Props) => {
   const { isMobile, isTablet } = useResponsiveContext();
   const [searchTerm, setSearchTerm] = useState('');
+  const [lang, setLang] = useState('');
   const isSmaller = isMobile || isTablet;
 
   const elementWidth = {
@@ -42,12 +44,17 @@ const SearchForm = ({ updateSearchTerm }: Props) => {
    */
   const submitForm: KeyboardEventHandler<HTMLInputElement> = (e) => {
     if (e.key === 'Enter') {
-      updateSearchTerm(searchTerm);
+      updateSearchTerm(searchTerm, lang);
     }
   };
 
   return (
-    <Box direction="column" pad={{ vertical: 'large' }} justify="center" align="center">
+    <Box
+      direction="column"
+      pad={{ vertical: 'large' }}
+      justify="center"
+      align="center"
+    >
       <Box width={elementWidth.textInput} margin={{ vertical: 'medium' }}>
         <TextInput
           size="large"
@@ -59,13 +66,14 @@ const SearchForm = ({ updateSearchTerm }: Props) => {
           onChange={(e) => setSearchTerm(e.target.value)}
           onKeyUp={submitForm}
         />
+        <Select setLang={setLang} />
       </Box>
       <Button
         label="Search"
         size="large"
         primary
         style={{ width: elementWidth.button }}
-        onClick={() => updateSearchTerm(searchTerm)}
+        onClick={() => updateSearchTerm(searchTerm, lang)}
       />
     </Box>
   );

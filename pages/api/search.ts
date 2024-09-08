@@ -1,7 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import createRepositorySearchQuery from '../../services/github/create-query';
 import getRepositories from '../../services/github/submit-query';
-import { Repository, RepositorySearchResponse } from '../../types/repository-search';
+import {
+  Repository,
+  RepositorySearchResponse,
+} from '../../types/repository-search';
 
 /**
  * @summary This function takes search parameters and returns the Github Search API Response.
@@ -17,9 +20,13 @@ import { Repository, RepositorySearchResponse } from '../../types/repository-sea
  * @param req request
  * @param res response
  */
-const handler = async (req: NextApiRequest, res: NextApiResponse<RepositorySearchResponse>) => {
+const handler = async (
+  req: NextApiRequest,
+  res: NextApiResponse<RepositorySearchResponse>
+) => {
   const repoName = JSON.parse(req.body).repo;
-  const query = createRepositorySearchQuery({ name: repoName });
+  const language = JSON.parse(req.body).lang;
+  const query = createRepositorySearchQuery({ name: repoName, language });
   const { data } = await getRepositories({ query });
   const response = {
     totalCount: data.total_count,
@@ -36,7 +43,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<RepositorySearc
         openIssues: item.open_issues,
         watchers: item.watchers_count,
         stars: item.stargazers_count,
-      }),
+      })
     ),
   };
   res.status(200).json({
